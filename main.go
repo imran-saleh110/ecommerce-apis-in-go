@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -22,8 +23,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 
 		for _, user := range users {
-			w.Write([]byte(user))
-			w.Write([]byte("\n"))
+			fmt.Fprintln(w, user)
 		}
 	}
 
@@ -37,14 +37,18 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// add a new user
 		users = append(users, string(body))
-		w.WriteHeader(http.StatusCreated)  // 201
+		w.WriteHeader(http.StatusCreated) // 201
 
-		w.Write([]byte("User Created"))
+		//
+		// w.Write([]byte("User Created"))
+		// fmt.Fprintln is more cleaner
+		//
+		fmt.Fprintln(w, "User Created")
 	}
 }
 
 func main() {
-	srv := &server {
+	srv := &server{
 		addr: ":8080",
 	}
 
