@@ -5,13 +5,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"uuid"
 )
 
 type server struct {
 	addr string
 }
-
-var users = []string{"Abdul Hamid", "Haider Ali"}
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// GET users
@@ -35,14 +34,24 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if string(body) == "" {
+			http.Error(w, "Username cannot be empty.", http.StatusBadRequest)
+			return
+		}
+
 		// add a new user
-		users = append(users, string(body))
-		w.WriteHeader(http.StatusCreated) // 201
+		newID := uuid.New().String()
+		newUser := User{
+			ID:   newID,
+			Name: string(body),
+		}
+		users[newID] = newUser
 
 		//
 		// w.Write([]byte("User Created"))
-		// fmt.Fprintln is more cleaner
+		// using fmt.Fprintln is more cleaner
 		//
+		w.WriteHeader(http.StatusCreated) // 201
 		fmt.Fprintln(w, "User Created")
 	}
 }
