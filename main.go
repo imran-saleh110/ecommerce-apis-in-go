@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"uuid"
 )
 
@@ -54,6 +55,28 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//
 		w.WriteHeader(http.StatusCreated) // 201
 		fmt.Fprintln(w, "User Created")
+		return
+	}
+
+	// GET /users/{id} -> { ID, Name }
+	if r.Method == "GET" {
+		//
+		// parsing rotues
+		// /users/42 -> ["", "users", "42"]
+		//
+		parts := strings.Split(r.URL.Path, "/")
+		if len(parts) == 3 && parts[1] == "users" {
+			id := parts[2]
+
+			user, exists := users[id]
+			if !exists {
+				http.Error(w, "user not found", http.StatusNotFound)
+				return
+			}
+
+			fmt.Fprintln(w, user)
+		}
+
 		return
 	}
 
