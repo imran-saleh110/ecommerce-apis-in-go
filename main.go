@@ -24,6 +24,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		for _, user := range users {
 			fmt.Fprintln(w, user)
 		}
+		return
 	}
 
 	// POST user
@@ -53,7 +54,10 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//
 		w.WriteHeader(http.StatusCreated) // 201
 		fmt.Fprintln(w, "User Created")
+		return
 	}
+
+	http.Error(w, "the route does not exist", http.StatusNotFound)
 }
 
 func main() {
