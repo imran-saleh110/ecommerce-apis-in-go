@@ -15,19 +15,12 @@ type server struct {
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// GET users
 	if r.Method == "GET" && r.URL.Path == "/users" {
-		//
-		// Writing header has to be done
-		// before writing body
-		//
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
 		usersList := []string{}
 		for _, user := range users {
 			usersList = append(usersList, user.Name)
 		}
 
-		json.NewEncoder(w).Encode(usersList)
+		WriteJSON(w, http.StatusOK, usersList)
 		return
 	}
 
@@ -70,8 +63,8 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// w.Write([]byte("User Created"))
 		// using fmt.Fprintln is more cleaner
 		//
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated) // 201
+		w.Header().Set("Content-Type", "application/json") // Mandatory!
+    w.WriteHeader(http.StatusCreated) // 201
 
 		json.NewEncoder(w).Encode(newUser)
 		return
@@ -93,13 +86,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			w.Header().Set("Content-Type", "application/json")
-			//
-			// Encoding/Serialization: go data -> json
-			// Encoder() method takes the data container
-			// and encodes it to JSON
-			//
-			json.NewEncoder(w).Encode(user)
+			WriteJSON(w, http.StatusCreated, user)
 
 			/*
 				  json.Marshal converts a value into JSON bytes ([]byte),
