@@ -100,14 +100,21 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// and encodes it to JSON
 			//
 			json.NewEncoder(w).Encode(user)
-			//
-			// data, err := json.Marshal(user)
-			// if err != nil {
-			// 	log.Println("Json Marshaling failed")
-			// 	return
-			// }
-			// fmt.Fprintln(w, string(data))
-			//
+
+			/*
+				  json.Marshal converts a value into JSON bytes ([]byte),
+					while json.Encoder.Encode writes JSON directly to an
+					io.Writer, such as an HTTP response or file. Use Marshal
+					when you need the bytes in memory; use Encoder for streaming
+					output, which can avoid holding the entire result in memory.
+
+					data, err := json.Marshal(user)
+					if err != nil {
+					log.Println("Json Marshaling failed")
+					return
+					}
+					fmt.Fprintln(w, string(data))
+			 */
 		}
 
 		return
