@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -20,11 +21,15 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Writing header has to be done
 		// before writing body
 		//
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
+		usersList := []string{}
 		for _, user := range users {
-			fmt.Fprintln(w, user)
+			usersList = append(usersList, user.Name)
 		}
+
+		json.NewEncoder(w).Encode(usersList)
 		return
 	}
 
@@ -74,7 +79,16 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			fmt.Fprintln(w, user)
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(user)
+			//
+			// data, err := json.Marshal(user)
+			// if err != nil {
+			// 	log.Println("Json Marshaling failed")
+			// 	return
+			// }
+			// fmt.Fprintln(w, string(data))
+			//
 		}
 
 		return

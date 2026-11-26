@@ -1,8 +1,13 @@
 package main
 
 type User struct {
-	ID   string
-	Name string
+	ID   string `json:"id"`
+	Name string `json:"name"`
+
+	/* Note:
+	 * Name string `json:"-"`
+	 * placing a - omits it from the marshaled json
+	 */
 }
 
 var users = map[string]User{
