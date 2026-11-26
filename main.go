@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -35,22 +33,36 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// POST user
 	if r.Method == "POST" && r.URL.Path == "/users" {
-		body, err := io.ReadAll(r.Body)
+		var req CreateUserRequest
+		//
+		// Decoding/Deserialization: json -> go data
+		// NOTE: Decode() method takes the address of the struct
+		// where you wish to store the JSON decoded data
+		//
+		err := json.NewDecoder(r.Body).Decode(&req)
+
 		if err != nil {
-			log.Println(err)
+			http.Error(w, "invalid JSON", http.StatusBadRequest)
 			return
 		}
 
-		if string(body) == "" {
-			http.Error(w, "Username cannot be empty.", http.StatusBadRequest)
+		if req.Name == "" {
+			http.Error(w, "Name cannot be empty", http.StatusBadRequest)
 			return
 		}
+
+		/* A UUID (Universally Unique Identifier) is a 128-bit value used in
+		computer systems to uniquely identify information, typically shown
+		as a 36-character string like 123e4567-e89b-12d3-a456-426614174000.
+		UUIDs are generated locally (without a central authority) and are
+		designed so that the chance of duplicates is extremely small.
+		*/
+		newID := uuid.New().String()
 
 		// add a new user
-		newID := uuid.New().String()
 		newUser := User{
 			ID:   newID,
-			Name: string(body),
+			Name: req.Name,
 		}
 		users[newID] = newUser
 
@@ -58,8 +70,10 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// w.Write([]byte("User Created"))
 		// using fmt.Fprintln is more cleaner
 		//
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated) // 201
-		fmt.Fprintln(w, "User Created")
+
+		json.NewEncoder(w).Encode(newUser)
 		return
 	}
 
@@ -80,6 +94,11 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 
 			w.Header().Set("Content-Type", "application/json")
+			//
+			// Encoding/Serialization: go data -> json
+			// Encoder() method takes the data container
+			// and encodes it to JSON
+			//
 			json.NewEncoder(w).Encode(user)
 			//
 			// data, err := json.Marshal(user)

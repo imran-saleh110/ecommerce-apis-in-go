@@ -7,7 +7,11 @@ type User struct {
 	/* Note:
 	 * Name string `json:"-"`
 	 * placing a - omits it from the marshaled json
-	 */
+	*/
+}
+
+type CreateUserRequest struct {
+	Name string `json:"name"`
 }
 
 var users = map[string]User{
